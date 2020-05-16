@@ -18,6 +18,7 @@ module.exports = {
                 let lastPrice = element.parentNode.children[0].children[0].data.trim();
                 let activePrice = element.next.children[0].data.trim()
                 let data = ($(element).parents('li')[0].children[0].attribs)
+                console.log(($($(element).parents('.c-product-box__content')[0].prev).attr('href')))
                 let image = ($($(element).parents('.c-product-box__content')[0].prev).find('img')[0].attribs)
                 Object.assign(result, {
                     id: data['data-id'],
