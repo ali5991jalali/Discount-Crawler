@@ -16,10 +16,8 @@ const
             }
         }
         return str;
-    };
-
-module.exports = {
-    async getPageDiscounts(url) {
+    },
+    getPageDiscounts = async (url) => {
         try {
             const body = await request({
                 method: 'GET',
@@ -59,7 +57,7 @@ module.exports = {
             throw Error(error)
         }
     },
-    async getPageNumber(url) {
+    getPageNumber = async (url) => {
         try {
             let body = await request({
                 method: 'GET',
@@ -72,14 +70,17 @@ module.exports = {
         } catch (error) {
             throw Error(error)
         }
-    },
+    }
+
+
+module.exports = {
     async getAllDiscounts(url) {
         let result = []
         try {
-            const pageNo = await module.exports.getPageNumber(url);
+            const pageNo = await getPageNumber(url);
             for (let i = 1; i <= pageNo; ++i) {
                 try {
-                    const data = await module.exports.getPageDiscounts(`${url}?pageno=${i}`);
+                    const data = await getPageDiscounts(`${url}?pageno=${i}`);
                     result = result.concat(data);
                 } catch (error) {
                     console.log(error)
