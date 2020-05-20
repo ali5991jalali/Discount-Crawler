@@ -1,7 +1,10 @@
 // Required packages
 const request = require('request-promise');
 const cheerio = require('cheerio');
-
+// Models
+const Digikala = require('./../models/Digikala');
+// Configs
+const configs = require('./../configs/digikala');
 // Persian number converter
 const
     persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g],
@@ -24,8 +27,8 @@ module.exports = {
                 json: true
             })
             let $ = cheerio.load(body);
-            let pageResult = [];
-            await $('.c-listing__items').find('div.c-price__discount-oval').each((index, element) => {
+            // let pageResult = [];
+            await $('.c-listing__items').find('div.c-price__discount-oval').each(async (index, element) => {
                 const result = {};
                 let percent = (element.children[0].children[0].data).trim().replace('٪', '');
                 let lastPrice = element.parentNode.children[0].children[0].data.trim();
@@ -34,9 +37,9 @@ module.exports = {
                 let link = `https://digikala.com${($($(element).parents('.c-product-box__content')[0].prev).attr('href')).split('?')[0]}`;
                 let image = ($($(element).parents('.c-product-box__content')[0].prev).find('img')[0].attribs)
                 Object.assign(result, {
-                    id: data['data-id'],
-                    titleFa: data['data-title-fa'],
-                    titleEn: data['data-title-en'],
+                    productId: data['data-id'],
+                    faTitle: data['data-title-fa'],
+                    enTitle: data['data-title-en'],
                     lastPrice: fixNumbers(lastPrice),
                     activePrice: fixNumbers(activePrice),
                     percent: fixNumbers(percent),
@@ -44,7 +47,12 @@ module.exports = {
                     link
                 })
                 console.log(result)
-                pageResult.push(result)
+                try {
+                    await Digikala.create(result);
+                } catch (error) {
+                    console.log(error)
+                }
+                // pageResult.push(result)
             })
             return pageResult;
         } catch (error) {
