@@ -50,7 +50,6 @@ const
                 } catch (error) {
                     console.log(error)
                 }
-                // pageResult.push(result)
             })
             return pageResult;
         } catch (error) {

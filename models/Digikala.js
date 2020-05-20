@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 // schema
 const schema = new Schema({
-    productId: { type: Number },
+    productId: { type: Number, unique: true },
     faTitle: { type: String },
     enTitle: { type: String },
     lastPrice: { type: Number },
