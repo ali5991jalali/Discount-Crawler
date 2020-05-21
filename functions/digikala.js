@@ -46,7 +46,14 @@ const
                 })
                 console.log(result)
                 try {
-                    await Digikala.create(result);
+                    const product = await Digikala.findOne({ productId: result['productId'] });
+                    if (!product) {
+                        await Digikala.create(result);
+                    } else {
+                        if (product['lastPrice'] != result['lastPrice'] || product['activePrice'] != result['activePrice'] || product['percent'] != result['percent']) {
+                            await Digikala.findOneAndUpdate({ _id: product._id }, result, { new: true })
+                        }
+                    }
                 } catch (error) {
                     console.log(error)
                 }

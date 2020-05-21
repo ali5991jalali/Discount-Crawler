@@ -1,5 +1,6 @@
 // Required pakages
 const mongoose = require('mongoose');
+const timestamp = require('mongoose-timestamp');
 // Schema
 const Schema = mongoose.Schema;
 // schema
@@ -13,6 +14,8 @@ const schema = new Schema({
     image: { type: String },
     link: { type: String }
 })
+// Plugins
+schema.plugin(timestamp);
 // Model
 const model = mongoose.model('Digikala', schema, 'Digikala');
 module.exports = model;
