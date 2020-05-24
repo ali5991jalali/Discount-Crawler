@@ -4,15 +4,27 @@ const { CronJob } = require('cron');
 const { getAllDiscounts } = require('./../functions/digikala');
 // Configs
 const configs = require('./../configs/digikala');
-
-const job = new CronJob('* * 22 * * *', function () {
+// Main Function
+function digikalaCron() {
     Object.keys(configs.categories).forEach((category) => {
         Object.keys(configs.categories[category]['categories']).forEach((subCategory) => {
-            getAllDiscounts(configs['categories'][category]['categories'][subCategory]['link'])
-                .then(`Ended category:${category} and subCategoey:${subCategory}`)
-                .catch(`Error in category:${category} and subCatgory:${subCategory} because of ${error}`)
+            let link = configs['categories'][category]['categories'][subCategory]['link'];
+            let enCategory = configs['categories'][category]['categories'][subCategory]['enCategory'];
+            let faCategory = configs['categories'][category]['categories'][subCategory]['faCategory']
+            getAllDiscounts(link, faCategory, enCategory)
+                .then(response => {
+                    console.log(response.data)
+                })
         })
     })
-}, null, true, 'Asia/Tehran');
+}
 
-job.start()
+
+// const job = new CronJob('* * 22 * * *', function () {
+//     digikalaCron();
+// }, null, true, 'Asia/Tehran');
+
+module.exports = {
+    digikalaCron
+}
+

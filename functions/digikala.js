@@ -17,7 +17,7 @@ const
         }
         return str;
     },
-    getPageDiscounts = async (url) => {
+    getPageDiscounts = async (url, faCetegory, enCategory) => {
         try {
             const body = await request({
                 method: 'GET',
@@ -25,8 +25,9 @@ const
                 json: true
             })
             let $ = cheerio.load(body);
-            // let pageResult = [];
-            await $('.c-listing__items').find('div.c-price__discount-oval').each(async (index, element) => {
+            // console.log($('.c-listing__items').find('div.c-price__discount-oval').length)
+            $('.c-listing__items').find('div.c-price__discount-oval').each(async (index, element) => {
+                console.log('url', url)
                 const result = {};
                 let percent = (element.children[0].children[0].data).trim().replace('٪', '');
                 let lastPrice = element.parentNode.children[0].children[0].data.trim();
@@ -38,32 +39,36 @@ const
                     productId: data['data-id'],
                     faTitle: data['data-title-fa'],
                     enTitle: data['data-title-en'],
-                    lastPrice: fixNumbers(lastPrice),
-                    activePrice: fixNumbers(activePrice),
-                    percent: fixNumbers(percent),
+                    lastPrice: (fixNumbers(lastPrice)).replace(/,/g, ''),
+                    activePrice: (fixNumbers(activePrice)).replace(/,/g, ''),
+                    percent: fixNumbers(percent).replace(/,/g, ''),
                     image: image['src'],
-                    link
+                    link,
+                    faCetegory,
+                    enCategory
                 })
                 console.log(result)
                 try {
                     const product = await Digikala.findOne({ productId: result['productId'] });
                     if (!product) {
-                        await Digikala.create(result);
+                        const createResult = await Digikala.create(result);
                     } else {
                         if (product['lastPrice'] != result['lastPrice'] || product['activePrice'] != result['activePrice'] || product['percent'] != result['percent']) {
-                            await Digikala.findOneAndUpdate({ _id: product._id }, result, { new: true })
+                            const updateResult = await Digikala.findOneAndUpdate({ _id: product._id }, result)
                         }
                     }
                 } catch (error) {
-                    console.log(error)
+                    console.log('Database Error', error)
                 }
             })
-            return pageResult;
+            return `End of ${url} url`;
         } catch (error) {
-            throw Error(error)
+            console.log(error)
+            throw Error('Request Error', error)
         }
     },
     getPageNumber = async (url) => {
+        console.log(url)
         try {
             let body = await request({
                 method: 'GET',
@@ -74,27 +79,29 @@ const
             let href = Number($('a.c-pager__next')[0].attribs.href.split('&')[1].replace('pageno=', ''))
             return href;
         } catch (error) {
+            console.log(error)
             throw Error(error)
         }
     }
 
 
 module.exports = {
-    async getAllDiscounts(url) {
-        let result = []
+    async getAllDiscounts(url, faCetegory, enCategory) {
         try {
             const pageNo = await getPageNumber(url);
+            console.log('pageNo', url, pageNo)
             for (let i = 1; i <= pageNo; ++i) {
+                // console.log('PAGENUMBER', i)
                 try {
                     const data = await getPageDiscounts(`${url}?pageno=${i}`);
-                    result = result.concat(data);
+                    console.log(data)
                 } catch (error) {
-                    console.log(error)
+                    console.log('Page Error', error)
                 }
             }
         } catch (error) {
             console.log('Error in getting page number', error)
         }
-        return (result);
+        return `End of ${url} all pages`
     }
 }

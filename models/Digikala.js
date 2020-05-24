@@ -12,7 +12,9 @@ const schema = new Schema({
     activePrice: { type: Number },
     percent: { type: Number },
     image: { type: String },
-    link: { type: String }
+    link: { type: String },
+    faCetegory: { type: String },
+    enCategory: { type: String }
 })
 // Plugins
 schema.plugin(timestamp);
