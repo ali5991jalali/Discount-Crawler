@@ -1,8 +1,10 @@
 // packages
-const request = require('request'),
+const
+    request = require('request-promise'),
     cheerio = require('cheerio');
 // Functions
-const result = (element, faCetegory, enCategory) => {
+// Craete result object from each element
+const createElementResult = (element, faCetegory, enCategory) => {
     const result = {};
     let percent = (element.children[0].children[0].data).trim().replace('٪', '');
     let lastPrice = element.parentNode.children[0].children[0].data.trim();
@@ -23,4 +25,31 @@ const result = (element, faCetegory, enCategory) => {
         enCategory
     })
     return result;
+}
+// Get cheerio body load from request package response
+const getCheerioBody = async (url) => {
+    try {
+        const body = await request({
+            method: 'GET',
+            url,
+            json: true
+        })
+        const $ = cheerio.load(body);
+        return $;
+    } catch (error) {
+        console.log(error);
+        throw Error(error.message)
+    }
+}
+// Get number of pagination for specific url
+const getPageNumber = async (url) => {
+    console.log(url)
+    try {
+        const $ = await getCheerioBody(url);
+        let href = Number($('a.c-pager__next')[0].attribs.href.split('&')[1].replace('pageno=', ''))
+        return href;
+    } catch (error) {
+        console.log(error)
+        throw Error(error)
+    }
 }
